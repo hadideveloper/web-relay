@@ -1,0 +1,12 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/ESP32/firmware",
+    "cmake.buildDirectory": "${workspaceFolder}/ESP32/firmware/build",
+    "idf.pythonInstallPath": "D:\\MyProjects\\Espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.espIdfPathWin": "D:/MyProjects/Espressif/frameworks/esp-idf-v5.5.1/",
+    "idf.toolsPathWin": "D:\\MyProjects\\Espressif",
+    "idf.flashType": "UART",
+    "idf.monitorPort": "COM10",
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ]
+}
