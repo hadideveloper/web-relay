@@ -17,8 +17,15 @@ typedef enum
     CMD_RELAY1_OFF,
     CMD_RELAY2_ON,
     CMD_RELAY2_OFF,
+    CMD_SSID_SET,
+    CMD_WIFIPASS_SET,
+    CMD_SSID_QUERY,
+    CMD_WIFIPASS_QUERY,
     CMD_UNKNOWN
 } command_type_t;
+
+#define MAX_COMMAND_LENGTH 64
+#define MAX_PARAM_LENGTH 32
 
 /**
  * @brief Command structure
@@ -26,6 +33,7 @@ typedef enum
 typedef struct
 {
     command_type_t type;
+    char param[MAX_PARAM_LENGTH];
 } command_t;
 
 /**
@@ -41,5 +49,11 @@ void ComInit(void);
  * @return pdTRUE if a command was received, pdFALSE on timeout
  */
 BaseType_t ComGetCommand(TickType_t timeout_ms, command_t *cmd);
+
+/**
+ * @brief Send a response via UART
+ * @param response The response string to send
+ */
+void ComSendResponse(const char *response);
 
 #endif // COM_H
