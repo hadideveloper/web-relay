@@ -21,11 +21,13 @@ typedef enum
     CMD_WIFIPASS_SET,
     CMD_SSID_QUERY,
     CMD_WIFIPASS_QUERY,
+    CMD_URL_SET,
+    CMD_URL_QUERY,
     CMD_UNKNOWN
 } command_type_t;
 
-#define MAX_COMMAND_LENGTH 64
-#define MAX_PARAM_LENGTH 32
+#define MAX_COMMAND_LENGTH 128
+#define MAX_PARAM_LENGTH 128
 
 /**
  * @brief Command structure

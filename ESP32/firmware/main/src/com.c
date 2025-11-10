@@ -75,6 +75,23 @@ static command_type_t parse_command(const char *cmd_str, char *param_out)
         return CMD_WIFIPASS_QUERY;
     }
 
+    // Check for URL= command
+    if (strncmp(cmd_copy, "URL=", 4) == 0)
+    {
+        if (param_out != NULL && len > 4)
+        {
+            strncpy(param_out, cmd_copy + 4, MAX_PARAM_LENGTH - 1);
+            param_out[MAX_PARAM_LENGTH - 1] = '\0';
+        }
+        return CMD_URL_SET;
+    }
+
+    // Check for URL? query
+    if (strcmp(cmd_copy, "URL?") == 0)
+    {
+        return CMD_URL_QUERY;
+    }
+
     // Convert to lowercase for other commands
     to_lowercase(cmd_copy);
 

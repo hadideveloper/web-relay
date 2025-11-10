@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "com.h"
 #include "wifi.h"
+#include "http.h"
 
 static const char *TAG = "main";
 
@@ -25,6 +26,10 @@ void app_main(void)
 
     // Initialize WiFi
     WifiInit();
+
+    // Initialize HTTP client
+    HttpInit();
+    HttpStartPolling();
 
     // Load SSID and password from NVS
     char ssid[MAX_SSID_LEN] = {0};
@@ -179,6 +184,33 @@ void app_main(void)
                         strncat(masked, stored_password + len - 2, 2);
                     }
                     ComSendResponse(masked);
+                }
+                else
+                {
+                    ComSendResponse("NOT_SET");
+                }
+                break;
+            }
+
+            case CMD_URL_SET:
+                if (HttpSaveUrl(cmd.param) == 0)
+                {
+                    ComSendResponse("OK");
+                    ESP_LOGI(TAG, "URL saved: %s", cmd.param);
+                }
+                else
+                {
+                    ComSendResponse("ERROR");
+                    ESP_LOGE(TAG, "Failed to save URL");
+                }
+                break;
+
+            case CMD_URL_QUERY:
+            {
+                char stored_url[128] = {0};
+                if (HttpLoadUrl(stored_url, sizeof(stored_url)) == 0)
+                {
+                    ComSendResponse(stored_url);
                 }
                 else
                 {
