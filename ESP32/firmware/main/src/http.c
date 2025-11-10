@@ -1,6 +1,7 @@
 #include "http.h"
 #include "wifi.h"
 #include "uart.h"
+#include "server.h"
 #include "esp_log.h"
 #include "esp_http_client.h"
 #include "esp_crt_bundle.h"
@@ -15,8 +16,11 @@ static const char *TAG = "http";
 #define HTTP_POLL_INTERVAL_MS 2000
 #define HTTP_BUFFER_SIZE 512
 #define MAX_URL_LENGTH 128
+#define MAX_RESPONSE_LENGTH 512 // Increased for JSON
 
 static char current_url[MAX_URL_LENGTH] = {0};
+static char response_buffer[MAX_RESPONSE_LENGTH] = {0};
+static size_t response_length = 0;
 
 /**
  * @brief HTTP event handler
@@ -38,10 +42,24 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
         ESP_LOGD(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
         break;
     case HTTP_EVENT_ON_DATA:
-        // Write data to UART (handles both chunked and non-chunked responses)
+        // Capture response data and write to UART
         if (evt->data_len > 0)
         {
+            // Write to UART
             UartWrite((const char *)evt->data, evt->data_len);
+
+            // Capture response for processing (limit to buffer size)
+            size_t copy_len = evt->data_len;
+            if (response_length + copy_len >= MAX_RESPONSE_LENGTH)
+            {
+                copy_len = MAX_RESPONSE_LENGTH - response_length - 1;
+            }
+            if (copy_len > 0)
+            {
+                memcpy(response_buffer + response_length, evt->data, copy_len);
+                response_length += copy_len;
+                response_buffer[response_length] = '\0';
+            }
             ESP_LOGD(TAG, "Received %d bytes, written to UART", evt->data_len);
         }
         break;
@@ -49,6 +67,11 @@ static esp_err_t http_event_handler(esp_http_client_event_t *evt)
         ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
         // Add newline after response
         UartWrite("\r\n", 2);
+        // Ensure response is null-terminated
+        if (response_length < MAX_RESPONSE_LENGTH)
+        {
+            response_buffer[response_length] = '\0';
+        }
         break;
     case HTTP_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
@@ -104,12 +127,33 @@ static void http_fetch_url(void)
         // Set HTTP method to GET
         esp_http_client_set_method(client, HTTP_METHOD_GET);
 
+        // Reset response buffer
+        response_length = 0;
+        response_buffer[0] = '\0';
+
         err = esp_http_client_perform(client);
         if (err == ESP_OK)
         {
             int status_code = esp_http_client_get_status_code(client);
             int content_length = esp_http_client_get_content_length(client);
             ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d", status_code, content_length);
+
+            // Process response if status is 200
+            if (status_code == 200 && response_length > 0)
+            {
+                // Ensure response is null-terminated
+                if (response_length < MAX_RESPONSE_LENGTH)
+                {
+                    response_buffer[response_length] = '\0';
+                }
+                else
+                {
+                    response_buffer[MAX_RESPONSE_LENGTH - 1] = '\0';
+                }
+
+                // Process response through server module
+                ServerProcessResponse(response_buffer, response_length, status_code);
+            }
         }
         else
         {
