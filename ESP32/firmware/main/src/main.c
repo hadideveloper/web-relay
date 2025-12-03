@@ -10,6 +10,7 @@
 #include "com.h"
 #include "wifi.h"
 #include "http.h"
+#include "webserver.h"
 
 static const char *TAG = "main";
 
@@ -46,6 +47,9 @@ void app_main(void)
     {
         ESP_LOGW(TAG, "No WiFi credentials found in NVS, using defaults");
     }
+
+    // Initialize web server
+    WebserverInit();
 
     ESP_LOGI(TAG, "Welcome to Web Relay");
 
@@ -215,6 +219,20 @@ void app_main(void)
                 else
                 {
                     ComSendResponse("NOT_SET");
+                }
+                break;
+            }
+
+            case CMD_IP_QUERY:
+            {
+                char ip_str[16] = {0};
+                if (WifiGetIpAddress(ip_str, sizeof(ip_str)) == 0)
+                {
+                    ComSendResponse(ip_str);
+                }
+                else
+                {
+                    ComSendResponse("NOT_CONNECTED");
                 }
                 break;
             }

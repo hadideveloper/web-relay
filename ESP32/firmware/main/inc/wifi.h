@@ -54,5 +54,13 @@ int WifiLoadSsid(char* ssid, size_t max_len);
  */
 int WifiLoadPassword(char* password, size_t max_len);
 
+/**
+ * @brief Get current IP address as string
+ * @param ip_str Buffer to store IP address (must be at least 16 bytes)
+ * @param max_len Maximum length of the buffer
+ * @return 0 on success, -1 on failure or not connected
+ */
+int WifiGetIpAddress(char* ip_str, size_t max_len);
+
 #endif // WIFI_H
 

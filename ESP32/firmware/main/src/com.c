@@ -92,6 +92,12 @@ static command_type_t parse_command(const char *cmd_str, char *param_out)
         return CMD_URL_QUERY;
     }
 
+    // Check for IP? query
+    if (strcmp(cmd_copy, "IP?") == 0)
+    {
+        return CMD_IP_QUERY;
+    }
+
     // Convert to lowercase for other commands
     to_lowercase(cmd_copy);
 

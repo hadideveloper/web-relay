@@ -5,6 +5,8 @@
 #include "esp_netif.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "lwip/inet.h"
+#include "lwip/ip4_addr.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -298,5 +300,34 @@ int WifiLoadPassword(char *password, size_t max_len)
     }
 
     ESP_LOGI(TAG, "Password loaded from NVS");
+    return 0;
+}
+
+int WifiGetIpAddress(char* ip_str, size_t max_len)
+{
+    if (ip_str == NULL || max_len == 0)
+    {
+        ESP_LOGE(TAG, "Invalid parameters for getting IP address");
+        return -1;
+    }
+
+    if (!wifi_connected || sta_netif == NULL)
+    {
+        return -1;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    esp_err_t err = esp_netif_get_ip_info(sta_netif, &ip_info);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to get IP info: %s", esp_err_to_name(err));
+        return -1;
+    }
+
+    snprintf(ip_str, max_len, "%d.%d.%d.%d",
+             ip4_addr1(&ip_info.ip),
+             ip4_addr2(&ip_info.ip),
+             ip4_addr3(&ip_info.ip),
+             ip4_addr4(&ip_info.ip));
     return 0;
 }
