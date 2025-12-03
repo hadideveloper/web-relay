@@ -23,6 +23,7 @@ typedef enum
     CMD_WIFIPASS_QUERY,
     CMD_URL_SET,
     CMD_URL_QUERY,
+    CMD_IP_QUERY,
     CMD_UNKNOWN
 } command_type_t;
 
