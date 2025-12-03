@@ -29,5 +29,13 @@ int HttpSaveUrl(const char* url);
  */
 int HttpLoadUrl(char* url, size_t max_len);
 
+/**
+ * @brief Send POST request with JSON payload to the configured URL
+ * Uses the same endpoint as GET requests (same URL, different HTTP method)
+ * @param json_payload The JSON string to send
+ * @return 0 on success, -1 on failure
+ */
+int HttpPostJson(const char* json_payload);
+
 #endif // HTTP_H
 

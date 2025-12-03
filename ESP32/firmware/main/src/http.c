@@ -95,6 +95,7 @@ static void http_fetch_url(void)
     }
 
     const char *url_to_fetch = current_url;
+    ESP_LOGI(TAG, "Fetching URL: %s", url_to_fetch);
 
     esp_http_client_config_t config = {
         .url = url_to_fetch,
@@ -151,8 +152,14 @@ static void http_fetch_url(void)
                     response_buffer[MAX_RESPONSE_LENGTH - 1] = '\0';
                 }
 
+                ESP_LOGI(TAG, "Response received (%d bytes): %s", response_length, response_buffer);
+
                 // Process response through server module
                 ServerProcessResponse(response_buffer, response_length, status_code);
+            }
+            else if (status_code == 200 && response_length == 0)
+            {
+                ESP_LOGD(TAG, "Empty response (no pending commands)");
             }
         }
         else
@@ -314,4 +321,58 @@ int HttpLoadUrl(char *url, size_t max_len)
 
     ESP_LOGI(TAG, "URL loaded from NVS: %s", url);
     return 0;
+}
+
+int HttpPostJson(const char *json_payload)
+{
+    if (json_payload == NULL)
+    {
+        ESP_LOGE(TAG, "JSON payload cannot be NULL");
+        return -1;
+    }
+
+    // Use the same URL as GET requests
+    if (strlen(current_url) == 0)
+    {
+        ESP_LOGW(TAG, "URL not set, skipping POST");
+        return -1;
+    }
+
+    esp_http_client_config_t config = {
+        .url = current_url,
+        .event_handler = http_event_handler,
+        .timeout_ms = 5000, // Shorter timeout for ACK
+        .keep_alive_enable = false,
+    };
+
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    if (client == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to initialize HTTP client for POST");
+        return -1;
+    }
+
+    // Set method to POST
+    esp_http_client_set_method(client, HTTP_METHOD_POST);
+
+    // Set content type header
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+
+    // Set POST data
+    esp_http_client_set_post_field(client, json_payload, strlen(json_payload));
+
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK)
+    {
+        int status_code = esp_http_client_get_status_code(client);
+        ESP_LOGI(TAG, "HTTP POST Status = %d", status_code);
+        esp_http_client_cleanup(client);
+        return (status_code >= 200 && status_code < 300) ? 0 : -1;
+    }
+    else
+    {
+        ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        esp_http_client_cleanup(client);
+        return -1;
+    }
 }

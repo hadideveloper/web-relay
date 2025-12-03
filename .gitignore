@@ -1,2 +1,5 @@
 /ESP32/firmware/build
 /ESP32/firmware/.vscode
+/ExampleServer/WebRelay.Server.Example.Blazor/.vs
+/ExampleServer/WebRelay.Server.Example.Blazor/bin
+/ExampleServer/WebRelay.Server.Example.Blazor/obj

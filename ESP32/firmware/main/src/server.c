@@ -1,5 +1,6 @@
 #include "server.h"
 #include "relay.h"
+#include "http.h"
 #include "esp_log.h"
 #include "cJSON.h"
 #include "freertos/FreeRTOS.h"
@@ -75,6 +76,7 @@ static void process_relay_command(cJSON *relay_obj, int relay_num)
 
     if (relay_state == 1)
     {
+        ESP_LOGI(TAG, "Turning ON relay %d", relay_num);
         RelayOn(relay_num);
         ESP_LOGI(TAG, "Relay %d turned ON", relay_num);
 
@@ -96,8 +98,13 @@ static void process_relay_command(cJSON *relay_obj, int relay_num)
     }
     else if (relay_state == 0)
     {
+        ESP_LOGI(TAG, "Turning OFF relay %d", relay_num);
         RelayOff(relay_num);
         ESP_LOGI(TAG, "Relay %d turned OFF", relay_num);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Invalid relay state value: %d (expected 0 or 1)", relay_state);
     }
 }
 
@@ -143,10 +150,30 @@ void ServerProcessResponse(const char *response, size_t response_len, int status
     cJSON *json = cJSON_Parse(trimmed);
     if (json != NULL)
     {
+        ESP_LOGI(TAG, "JSON parsed successfully");
+
+        // Check if this is an empty JSON object (no commands)
+        // An empty object {} will have no children
+        if (json->child == NULL)
+        {
+            ESP_LOGD(TAG, "Empty JSON object received (no commands)");
+            cJSON_Delete(json);
+            free(response_copy);
+            return;
+        }
+
+        // Extract command_id first
+        cJSON *command_id = cJSON_GetObjectItem(json, "command_id");
+        if (command_id != NULL && cJSON_IsString(command_id))
+        {
+            ESP_LOGI(TAG, "Command ID: %s", command_id->valuestring);
+        }
+
         // Process relay1
         cJSON *relay1 = cJSON_GetObjectItem(json, "relay1");
         if (relay1 != NULL)
         {
+            ESP_LOGI(TAG, "Processing relay1 command");
             process_relay_command(relay1, 1);
         }
 
@@ -154,7 +181,26 @@ void ServerProcessResponse(const char *response, size_t response_len, int status
         cJSON *relay2 = cJSON_GetObjectItem(json, "relay2");
         if (relay2 != NULL)
         {
+            ESP_LOGI(TAG, "Processing relay2 command");
             process_relay_command(relay2, 2);
+        }
+
+        // Send ACK via POST if command_id is present
+        if (command_id != NULL && cJSON_IsString(command_id))
+        {
+            // Create ACK JSON with command_id
+            cJSON *ack_json = cJSON_CreateObject();
+            cJSON_AddStringToObject(ack_json, "command_id", command_id->valuestring);
+            cJSON_AddStringToObject(ack_json, "status", "received");
+
+            char *ack_str = cJSON_PrintUnformatted(ack_json);
+            if (ack_str)
+            {
+                ESP_LOGI(TAG, "Sending ACK for command_id: %s", command_id->valuestring);
+                HttpPostJson(ack_str);
+                free(ack_str);
+            }
+            cJSON_Delete(ack_json);
         }
 
         cJSON_Delete(json);
@@ -163,7 +209,7 @@ void ServerProcessResponse(const char *response, size_t response_len, int status
     {
         const char *error_ptr = cJSON_GetErrorPtr();
         ESP_LOGW(TAG, "Failed to parse JSON response: %s", error_ptr ? error_ptr : "unknown error");
-        
+
         // Fallback: try simple string parsing for backward compatibility
         if (strcmp(trimmed, "0") == 0)
         {
@@ -179,4 +225,3 @@ void ServerProcessResponse(const char *response, size_t response_len, int status
 
     free(response_copy);
 }
-

@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExampleServer", "ExampleServer", "{31B01BF2-49BF-91F2-AF96-115F23CDD1D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRelay.Server.Example.Blazor", "ExampleServer\WebRelay.Server.Example.Blazor\WebRelay.Server.Example.Blazor.csproj", "{0BC048B9-9D1F-958F-7FFD-D98FDD078051}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BC048B9-9D1F-958F-7FFD-D98FDD078051}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC048B9-9D1F-958F-7FFD-D98FDD078051}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BC048B9-9D1F-958F-7FFD-D98FDD078051}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BC048B9-9D1F-958F-7FFD-D98FDD078051}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0BC048B9-9D1F-958F-7FFD-D98FDD078051} = {31B01BF2-49BF-91F2-AF96-115F23CDD1D8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {700A01B7-0B6C-4937-B2CF-6FE4C04CB90A}
+	EndGlobalSection
+EndGlobal
