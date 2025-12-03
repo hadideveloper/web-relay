@@ -46,15 +46,15 @@ A complete IoT solution for remote relay control, consisting of ESP32 firmware a
          │ HTTP
          ▼
 ┌─────────────────┐      HTTP GET (poll every 2s)      ┌─────────────┐
-│  Example Server │ ◄─────────────────────────────────── │    ESP32     │
-│  (Blazor/.NET)  │                                      │   Firmware   │
-└────────┬────────┘      HTTP POST (ACK)                └──────┬───────┘
+│  Example Server │ ◄───────────────────────────────── │    ESP32     │
+│  (Blazor/.NET)  │                                    │   Firmware   │
+└────────┬────────┘      HTTP POST (ACK)               └──────┬───────┘
          │                                                    │
-         │ Queue Commands                                    │ GPIO
+         │ Queue Commands                                     │ GPIO
          │                                                    ▼
          │                                            ┌─────────────┐
          │                                            │   Relays    │
-         │                                            │  (GPIO 16/17)│
+         │                                            │ (GPIO 16/17)│
          │                                            └─────────────┘
          │
          └─── Command Acknowledgment ────┘
