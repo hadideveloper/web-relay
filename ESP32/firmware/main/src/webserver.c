@@ -52,6 +52,9 @@ static const char *html_page =
     ".status { padding: 10px; margin: 10px 0; border-radius: 4px; }"
     ".status-on { background: #d4edda; color: #155724; }"
     ".status-off { background: #f8d7da; color: #721c24; }"
+    ".footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px; }"
+    ".footer a { color: #2196F3; text-decoration: none; }"
+    ".footer a:hover { text-decoration: underline; }"
     "</style>"
     "</head>"
     "<body>"
@@ -78,6 +81,9 @@ static const char *html_page =
     "<div class=\"status %s\">Status: %s</div>"
     "<button onclick=\"location.href='/relay2/on'\" class=\"btn-on\">ON</button>"
     "<button onclick=\"location.href='/relay2/off'\" class=\"btn-off\">OFF</button>"
+    "</div>"
+    "<div class=\"footer\">"
+    "<p>Web Relay Controller | <a href=\"https://github.com/hadideveloper/web-relay\" target=\"_blank\">GitHub</a></p>"
     "</div>"
     "</div>"
     "</body>"
@@ -106,12 +112,17 @@ static esp_err_t root_get_handler(httpd_req_t *req)
     const char *relay1_class = relay1_state_val ? "status-on" : "status-off";
     const char *relay2_class = relay2_state_val ? "status-on" : "status-off";
 
-    char html[2048];
-    snprintf(html, sizeof(html), html_page,
-             ip_str,
-             url,
-             relay1_class, relay1_status,
-             relay2_class, relay2_status);
+    char html[4096];
+    int len = snprintf(html, sizeof(html), html_page,
+                       ip_str,
+                       url,
+                       relay1_class, relay1_status,
+                       relay2_class, relay2_status);
+
+    if (len >= sizeof(html))
+    {
+        ESP_LOGW(TAG, "HTML buffer may be truncated (len=%d, size=%d)", len, sizeof(html));
+    }
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, html, HTTPD_RESP_USE_STRLEN);
