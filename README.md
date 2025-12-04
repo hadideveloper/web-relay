@@ -2,11 +2,7 @@
 
 A complete IoT solution for remote relay control, consisting of ESP32 firmware and an example web server. The ESP32 device polls a server for commands via HTTP GET requests and sends acknowledgments via HTTP POST, enabling reliable remote control of relays over the internet.
 
-<img width="879" height="838" alt="image" src="https://github.com/user-attachments/assets/0d59ddf8-f34f-43c7-a871-425bf5f8dae6" />
-
-<img width="655" height="884" alt="image" src="https://github.com/user-attachments/assets/7efa3a93-3a08-45f2-9ac6-931242227a7f" />
-
-
+<img width="400" height="500" alt="image" src="https://github.com/user-attachments/assets/7efa3a93-3a08-45f2-9ac6-931242227a7f" />
 
 ## 🌟 Features
 
@@ -28,6 +24,8 @@ A complete IoT solution for remote relay control, consisting of ESP32 firmware a
   - Command queuing and acknowledgment tracking
   - Real-time state updates
   - Responsive UI with dark theme
+
+  <img width="400" height="450" alt="image" src="https://github.com/user-attachments/assets/0d59ddf8-f34f-43c7-a871-425bf5f8dae6" />
 
 ## 📋 Table of Contents
 
